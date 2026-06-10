@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quizlet CNXHKH</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f7fb;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    color:#2c3e50;
+}
+
+.progress{
+    text-align:center;
+    margin-bottom:20px;
+    font-weight:bold;
+}
+
+.card{
+    height:350px;
+    perspective:1000px;
+    cursor:pointer;
+}
+
+.card-inner{
+    position:relative;
+    width:100%;
+    height:100%;
+    transition:transform .8s;
+    transform-style:preserve-3d;
+}
+
+.card.flipped .card-inner{
+    transform:rotateY(180deg);
+}
+
+.front,.back{
+    position:absolute;
+    width:100%;
+    height:100%;
+    backface-visibility:hidden;
+    border-radius:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:30px;
+    box-sizing:border-box;
+    font-size:24px;
+    box-shadow:0 5px 15px rgba(0,0,0,.2);
+}
+
+.front{
+    background:white;
+    color:#2c3e50;
+}
+
+.back{
+    background:#4255ff;
+    color:white;
+    transform:rotateY(180deg);
+    font-size:20px;
+}
+
+.controls{
+    text-align:center;
+    margin-top:20px;
+}
+
+button{
+    padding:12px 25px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+    background:#4255ff;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#3040d0;
+}
+
+.quiz{
+    margin-top:40px;
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 3px 10px rgba(0,0,0,.1);
+}
+
+input{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+}
+
+.result{
+    margin-top:10px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📚 Quizlet - Chủ Nghĩa Xã Hội Khoa Học</h1>
+<p style="color:red">Nếu bạn thấy dòng này nhưng không thấy câu hỏi thì JavaScript đang lỗi.</p>
+<div class="progress">
+    Thẻ <span id="current">1</span> /
+    <span id="total"></span>
+</div>
+
+<div class="card" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+        <div class="front" id="question"></div>
+        <div class="back" id="answer"></div>
+    </div>
+</div>
+
+<div class="controls">
+    <button onclick="prevCard()">⬅ Previous</button>
+    <button onclick="nextCard()">Next ➡</button>
+</div>
+
+<div class="quiz">
+    <h2>📝 Tự kiểm tra</h2>
+    <p id="quizQuestion"></p>
+    <input type="text" id="userAnswer">
+    <button onclick="checkAnswer()">Kiểm tra</button>
+    <div class="result" id="result"></div>
+</div>
+
+</div>
+
+<script>
+
+const cards = [
+
+{q:"1. Ba đại diện tiêu biểu của CNXH không tưởng phê phán?",a:"Saint Simon, Robert Owen, Charles Fourier"},
+{q:"2. Hạn chế lớn nhất của CNXH không tưởng?",a:"Đề xuất con đường hòa bình cải lương, không khả thi"},
+{q:"3. Giá trị của CNXH không tưởng?",a:"Phê phán CNTB, dự báo xã hội tương lai, thức tỉnh GCCN"},
+{q:"4. Ba tiền đề khoa học tự nhiên của CNXHKH?",a:"Thuyết tiến hóa, học thuyết tế bào, định luật bảo toàn và chuyển hóa năng lượng"},
+{q:"5. Tác phẩm đánh dấu sự ra đời của CNXHKH?",a:"Tuyên ngôn của Đảng Cộng sản (1848)"},
+{q:"6. Phát kiến vĩ đại nhất của Mác và Ăngghen trong CNXHKH?",a:"Học thuyết về sứ mệnh lịch sử của giai cấp công nhân"},
+
+{q:"7. Giai cấp công nhân là gì?",a:"Tập đoàn xã hội ổn định hình thành cùng nền công nghiệp hiện đại"},
+{q:"8. GCCN đại diện cho lực lượng nào?",a:"Lực lượng sản xuất tiên tiến"},
+{q:"9. Giai cấp vô sản là sản phẩm của cái gì?",a:"Nền đại công nghiệp"},
+{q:"10. Điểm khác nhau cơ bản giữa GCCN ở TBCN và XHCN?",a:"Quan hệ sở hữu đối với tư liệu sản xuất chủ yếu"},
+{q:"11. Lợi ích của GCCN đối lập với giai cấp nào?",a:"Giai cấp tư sản"},
+{q:"12. Đặc điểm nổi bật của GCCN về tổ chức?",a:"Có ý thức tổ chức và kỷ luật cao"},
+{q:"13. Đặc điểm nổi bật của GCCN về xã hội?",a:"Mang tính xã hội hóa cao"},
+{q:"14. Mục tiêu tổng quát của sứ mệnh lịch sử GCCN?",a:"Xóa bỏ áp bức bóc lột, xây dựng CNXH, giải phóng con người"},
+{q:"15. Nội dung kinh tế của sứ mệnh lịch sử GCCN?",a:"Xây dựng cơ sở vật chất kỹ thuật và công hữu TLSX"},
+{q:"16. Nội dung chính trị - xã hội của sứ mệnh lịch sử GCCN?",a:"Giành chính quyền và xây dựng nhà nước mới"},
+{q:"17. Nội dung văn hóa tư tưởng của sứ mệnh lịch sử GCCN?",a:"Xây dựng hệ giá trị mới tiến bộ"},
+{q:"18. Đặc điểm riêng của sứ mệnh lịch sử GCCN?",a:"Xóa bỏ chế độ tư hữu tư liệu sản xuất chủ yếu"},
+{q:"19. Điều kiện khách quan quy định sứ mệnh lịch sử GCCN?",a:"Địa vị kinh tế - xã hội của GCCN"},
+{q:"20. Điều kiện chủ quan quan trọng nhất?",a:"Sự lãnh đạo của Đảng Cộng sản"},
+{q:"21. Liên minh cơ bản của GCCN?",a:"Công nhân - Nông dân - Trí thức"},
+{q:"22. GCCN Việt Nam ra đời trong hoàn cảnh nào?",a:"Dưới ách thống trị thực dân Pháp"},
+{q:"23. Đặc điểm nổi bật của GCCN Việt Nam?",a:"Gắn bó chặt chẽ với dân tộc và nông dân"},
+
+{q:"24. CNXH được tiếp cận từ mấy phương diện?",a:"4 phương diện"},
+{q:"25. Bốn phương diện tiếp cận CNXH?",a:"Phong trào đấu tranh, trào lưu tư tưởng, khoa học, chế độ xã hội"},
+{q:"26. Hình thái kinh tế xã hội CSCN gồm mấy giai đoạn?",a:"2 giai đoạn"},
+{q:"27. Giai đoạn thấp của CSCN?",a:"Chủ nghĩa xã hội"},
+{q:"28. Giai đoạn cao của CSCN?",a:"Chủ nghĩa cộng sản"},
+{q:"29. Cơ sở xác định thời đại lịch sử?",a:"Hình thái kinh tế xã hội"},
+{q:"30. Điều kiện kinh tế ra đời CNXH?",a:"Mâu thuẫn giữa lực lượng sản xuất và quan hệ sản xuất TBCN"},
+{q:"31. Đặc trưng thứ nhất của CNXH?",a:"Giải phóng con người toàn diện"},
+{q:"32. Đặc trưng thứ hai của CNXH?",a:"Nhân dân lao động làm chủ"},
+{q:"33. Đặc trưng kinh tế của CNXH?",a:"Kinh tế phát triển cao dựa trên công hữu TLSX"},
+{q:"34. Đặc trưng nhà nước của CNXH?",a:"Nhà nước kiểu mới mang bản chất GCCN"},
+{q:"35. Đặc trưng dân tộc của CNXH?",a:"Bình đẳng và đoàn kết các dân tộc"},
+{q:"36. Quá độ trực tiếp là gì?",a:"Từ CNTB lên CNXH"},
+{q:"37. Quá độ gián tiếp là gì?",a:"Từ tiền tư bản lên CNXH bỏ qua CNTB"},
+{q:"38. Bốn nội dung của thời kỳ quá độ?",a:"Công hữu hóa, sắp xếp LLSX, xây dựng QHSX mới, xây dựng xã hội mới"},
+{q:"39. Lênin ví thời kỳ quá độ là gì?",a:"Những cơn đau đẻ kéo dài"},
+
+{q:"40. Nhà nước XHCN ra đời từ đâu?",a:"Từ cách mạng vô sản do Đảng Cộng sản lãnh đạo"},
+{q:"41. Bản chất chính trị của nhà nước XHCN?",a:"Mang bản chất giai cấp công nhân"},
+{q:"42. Chủ thể quyền lực nhà nước XHCN?",a:"Nhân dân lao động"},
+{q:"43. Hệ tư tưởng của nhà nước XHCN?",a:"Chủ nghĩa Mác - Lênin"},
+{q:"44. Dân chủ XHCN là gì?",a:"Quyền lực thuộc về nhân dân lao động"},
+{q:"45. Quan hệ giữa dân chủ XHCN và nhà nước XHCN?",a:"Dân chủ là nền tảng, nhà nước là công cụ thực hiện dân chủ"},
+
+{q:"46. Cơ cấu xã hội giai cấp là gì?",a:"Hệ thống các giai cấp và tầng lớp trong xã hội"},
+{q:"47. Khối liên minh cơ bản ở Việt Nam?",a:"Công nhân - Nông dân - Trí thức"},
+{q:"48. Hai xu hướng khách quan của dân tộc?",a:"Độc lập dân tộc và liên hiệp dân tộc"},
+{q:"49. Ba nguồn gốc của tôn giáo?",a:"Tự nhiên-xã hội, nhận thức, tâm lý"},
+{q:"50. Ba nguyên tắc giải quyết vấn đề tôn giáo?",a:"Tôn trọng tự do tín ngưỡng, khắc phục mặt tiêu cực, quan điểm lịch sử cụ thể"}
+
+];
+
+let current=0;
+
+document.getElementById("total").innerText=cards.length;
+
+function loadCard(){
+    document.getElementById("question").innerText=cards[current].q;
+    document.getElementById("answer").innerText=cards[current].a;
+    document.getElementById("current").innerText=current+1;
+
+    document.querySelector(".card").classList.remove("flipped");
+
+    document.getElementById("quizQuestion").innerText=
+        cards[current].q;
+
+    document.getElementById("userAnswer").value="";
+    document.getElementById("result").innerText="";
+}
+
+function flipCard(){
+    document.querySelector(".card")
+        .classList.toggle("flipped");
+}
+
+function nextCard(){
+    current=(current+1)%cards.length;
+    loadCard();
+}
+
+function prevCard(){
+    current=(current-1+cards.length)%cards.length;
+    loadCard();
+}
+
+function checkAnswer(){
+
+    let answer=cards[current].a.toLowerCase();
+    let user=document.getElementById("userAnswer")
+            .value.toLowerCase();
+
+    if(answer.includes(user) && user.length>3){
+        document.getElementById("result").innerHTML=
+        "✅ Chính xác";
+    }else{
+        document.getElementById("result").innerHTML=
+        "❌ Đáp án: " + cards[current].a;
+    }
+}
+
+loadCard();
+
+</script>
+
+</body>
+</html>
